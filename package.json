@@ -1,0 +1,14 @@
+{
+  "name": "kue-cli",
+  "version": "0.0.1",
+  "dependencies": {
+    "async": "^1.5.0",
+    "colors": "^1.1.2",
+    "columnify": "^1.5.2",
+    "commander": "^2.9.0",
+    "kue": "^0.9.6",
+    "redis": "^2.3.0",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {}
+}
