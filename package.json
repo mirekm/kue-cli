@@ -13,5 +13,28 @@
     "redis": "^2.3.0",
     "underscore": "^1.8.3"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "description": "A simple CLI tool for managing Kue tasks",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mirekm/kue-cli.git"
+  },
+  "keywords": [
+    "kue",
+    "queue",
+    "cli",
+    "command",
+    "line",
+    "stats"
+  ],
+  "author": "Mirek Mencel <mirek@mirumee.com> (https://twitter.com/mirekmencel)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mirekm/kue-cli/issues"
+  },
+  "homepage": "https://github.com/mirekm/kue-cli#readme"
 }
