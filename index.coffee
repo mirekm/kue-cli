@@ -107,7 +107,7 @@ class KueApi
         if state is 'stuck'
             @getStuckActive callback
         else
-            kue.Job.rangeByState state, min, max, 'asc', (_callback or callback)
+            kue.Job.rangeByState state, min, max, 'asc', callback
 
     getStuckActive: (callback) ->
         @options.queue.active (error, ids) =>
