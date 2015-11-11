@@ -105,20 +105,21 @@ class KueApi
 
     getRangeByState: (state, min, max, callback) ->
         if state is 'stuck'
-            state = 'active'
-            _callback = (error, jobs) ->
-                callback error, _.filter jobs, (job) =>
-                    lastUpdate = +Date.now() - job.updated_at
-                    callback lastUpdate > @options.stuckDelta
-        kue.Job.rangeByState state, min, max, 'asc', (_callback or callback)
+            @getStuckActive callback
+        else
+            kue.Job.rangeByState state, min, max, 'asc', (_callback or callback)
 
     getStuckActive: (callback) ->
         @options.queue.active (error, ids) =>
-            async.filter ids, (id, next) =>
+            async.map ids, (id, next) =>
                 kue.Job.get id, (error, job) =>
-                    lastUpdate = +Date.now() - job.updated_at
-                    next error or (lastUpdate > @options.stuckDelta)
-            , callback
+                    lastUpdate = +Date.now() - +job.updated_at
+                    stuck = lastUpdate > @options.stuckDelta
+                    next error, if stuck then job else null
+            , (error, results) ->
+                if not error
+                    results = _.filter results, (job) -> job
+                callback and callback error, results
 
     # Helpers
     # -------------------------------------------------
