@@ -2,11 +2,16 @@
 
 Kue-cli is a *command line* job management client for Kue.
 
+## Installation
 
-### Commands
+`npm install kue-cli`
+
 ---
 
-#### Stats
+## Commands
+
+
+#### stats
 Display number of active, complete, delayed, failed and stuck (but active) tasks
 
 `./index.coffee stats`
@@ -21,14 +26,14 @@ Display number of active, complete, delayed, failed and stuck (but active) tasks
 
 -
 
-#### Watch
+#### watch
 It's a self-refreshing version of **stats** command 
 
 `./index.coffee watch`
 
 -
 
-#### List
+#### list
 List jobs of given status. `limit` to 50 by default.
 
 `./index.coffee list [active|complete|delayed|failed|stuck] [limit]`
@@ -39,7 +44,7 @@ List jobs of given status. `limit` to 50 by default.
 
 -
 
-#### Job
+#### job
 Show job with a given id
 
 `./index.coffee job [id]`
