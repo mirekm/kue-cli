@@ -144,26 +144,7 @@ options =
     watchInterval: 200
 
 cli
-    .version '0.0.3'
-
-cli
-    .command 'watch'
-    .option("-t, --time [seconds]", "Time difference between last updated_at and Date.now() determining that the task is stuck", 60)
-    .description 'watch active, complete, delayed and failed Kue tasks'
-    .action (options) ->
-        stuckDelta = options.time * 1000
-        renderer = new KueCliRenderer
-            stuckDelta: stuckDelta
-        kueCli = new KueApi
-            client: redisClient
-            stuckDelta: stuckDelta
-        setInterval () =>
-            kueCli.getStats (error, stats) =>
-                if error
-                    process.exit 0
-                else
-                    renderer.renderStats stats
-        , options.watchInterval
+    .version '0.0.7'
 
 cli
     .command 'stats'
@@ -183,6 +164,25 @@ cli
             else
                 renderer.renderStats stats
                 process.exit 1
+
+cli
+    .command 'watch'
+    .option("-t, --time [seconds]", "Time difference between last updated_at and Date.now() determining that the task is stuck", 60)
+    .description 'watch active, complete, delayed and failed Kue tasks'
+    .action (options) ->
+        stuckDelta = options.time * 1000
+        renderer = new KueCliRenderer
+            stuckDelta: stuckDelta
+        kueCli = new KueApi
+            client: redisClient
+            stuckDelta: stuckDelta
+        setInterval () =>
+            kueCli.getStats (error, stats) =>
+                if error
+                    process.exit 0
+                else
+                    renderer.renderStats stats
+        , options.watchInterval
 
 cli
     .command 'state [state] [number]'
@@ -206,10 +206,15 @@ cli
                 'worker id': job.workerId
                 'created at': moment(new Date(+job.created_at)).fromNow()
                 'updated at': moment(new Date(+job.updated_at)).fromNow()
-                failed: if job.failed_at then colors.red(new Date(+job.failed_at)) else colors.green(duration)
+                'error/complete at': if job.failed_at then colors.red(job._error) else colors.green(duration)
             str = columnify jobs,
-                columns: ['job id', 'worker id', 'created at', 'updated at', 'failed']
+                columns: ['job id', 'worker id', 'created at', 'updated at', 'error/complete at']
                 columnSplitter: colors.grey ' | '
+                truncate: true
+                config:
+                    'error/complete at':
+                        maxWidth: 75
+
             renderer.render "#{str}\n"
             process.exit 1
 
@@ -241,10 +246,11 @@ cli
 cli
     .command 'drop [state]'
     .option("-t, --time [seconds]", "(Stuck jobs only) time difference between last updated_at and Date.now() determining that the task is stuck", 60)
-    .description 'drop jobs of a given state.'
+    .description 'drop jobs of a given state'
     .action (state, cmdOptions) ->
         if not state
-            state = 'stuck'
+            console.log 'No state provided. Please choose stuck, comlete, failed, delayed or active.'
+            process.exit 1
         renderer = new KueCliRenderer
         options =
             client: redisClient
@@ -259,3 +265,7 @@ cli
 
 
 cli.parse process.argv
+
+if not process.argv.slice(2).length
+    cli.help (txt) ->
+        colors.red txt
