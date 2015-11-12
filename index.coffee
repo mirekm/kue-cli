@@ -103,6 +103,13 @@ class KueApi
     list: (state, callback) ->
         @getRangeByState state, @options.min, @options.max, callback
 
+    drop: (state, callback) ->
+        @getRangeByState state, 0, -1, (error, jobs) ->
+            async.reduce jobs, 0, (memo, job, next) ->
+                job.remove (error) ->
+                    next null, (if not error then memo + 1 else memo)
+            , callback
+
     getRangeByState: (state, min, max, callback) ->
         if state is 'stuck'
             @getStuckActive callback
@@ -181,17 +188,17 @@ cli
     .command 'state [state] [number]'
     .option("-t, --time [seconds]", "Time difference between last updated_at and Date.now() determining that the task is stuck", 60)
     .description 'list jobs by state: active, complete, delayed, failed, stuck'
-    .action (state, number, options) ->
+    .action (state, number, cmdOptions) ->
         if not state
             state = 'complete'
         renderer = new KueCliRenderer
-        stuckDelta = options.time * 1000
+        stuckDelta = cmdOptions.time * 1000
         options =
             client: redisClient
             stuckDelta: stuckDelta
         if +number > 0
             options.max = number - 1
-        kueCli =  new KueApi options
+        kueCli = new KueApi options
         kueCli.list state, (error, jobs) =>
             jobs = _.map jobs, (job) ->
                 duration = job.duration
@@ -208,7 +215,7 @@ cli
 
 cli
     .command 'job [id]'
-    .option("-i, --interactive", "Portal yourseld to node REPL")
+    .option("-i, --interactive", "Portal yourself to node REPL")
     .description 'show job details'
     .action (id, cmdOptions) ->
         renderer = new KueCliRenderer
@@ -218,7 +225,7 @@ cli
         else
             options =
                 client: redisClient
-            kueCli =  new KueApi options
+            kueCli = new KueApi options
             kueCli.get +id, (error, job) =>
                 str = highlight JSON.stringify(job, null, 4)
                 if cmdOptions.interactive
@@ -231,6 +238,24 @@ cli
                     renderer.render str + '\n'
                     process.exit 1
 
+cli
+    .command 'drop [state]'
+    .option("-t, --time [seconds]", "(Stuck jobs only) time difference between last updated_at and Date.now() determining that the task is stuck", 60)
+    .description 'drop jobs of a given state.'
+    .action (state, cmdOptions) ->
+        if not state
+            state = 'stuck'
+        renderer = new KueCliRenderer
+        options =
+            client: redisClient
+            stuckDelta: cmdOptions.time * 1000
+        kueCli = new KueApi options
+        kueCli.drop state, (error, count) ->
+            if error
+                renderer.render 'Errors removing jobs: ' + error + '\n'
+            else
+                renderer.render "#{count} #{state} jobs removed successfully.\n"
+            process.exit 1
 
 
 cli.parse process.argv
