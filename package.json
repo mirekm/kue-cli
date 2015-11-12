@@ -36,5 +36,8 @@
   "bugs": {
     "url": "https://github.com/mirekm/kue-cli/issues"
   },
-  "homepage": "https://github.com/mirekm/kue-cli#readme"
+  "homepage": "https://github.com/mirekm/kue-cli#readme",
+  "bin": {
+      "kue-cli": "index.coffee"
+  }
 }
