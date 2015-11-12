@@ -89,7 +89,7 @@ class KueApi
             callback error, value
 
     getStuckActiveCount: (callback) =>
-        @getStuckActive (jobs) =>
+        @getStuckActive (error, jobs) =>
             value = jobs?.length or 0
             if +value > 0
                 value = colors.red value
@@ -181,7 +181,7 @@ cli
     .command 'state [state] [number]'
     .option("-t, --time [seconds]", "Time difference between last updated_at and Date.now() determining that the task is stuck", 60)
     .description 'list jobs by state: active, complete, delayed, failed, stuck'
-    .action (state, number) ->
+    .action (state, number, options) ->
         if not state
             state = 'complete'
         renderer = new KueCliRenderer
