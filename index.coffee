@@ -1,4 +1,4 @@
-#!/usr/bin/env ./node_modules/coffee-script/bin/coffee
+#!/usr/bin/env coffee
 
 
 _ = require 'underscore'
