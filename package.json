@@ -1,6 +1,6 @@
 {
   "name": "kue-cli",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "dependencies": {
     "ansi-highlight": "^1.0.2",
     "async": "^1.5.0",
