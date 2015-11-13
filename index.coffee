@@ -144,7 +144,7 @@ options =
     watchInterval: 200
 
 cli
-    .version '0.0.7'
+    .version '0.0.8'
 
 cli
     .command 'stats'
@@ -185,7 +185,7 @@ cli
         , options.watchInterval
 
 cli
-    .command 'state [state] [number]'
+    .command 'list [state] [number]'
     .option("-t, --time [seconds]", "Time difference between last updated_at and Date.now() determining that the task is stuck", 60)
     .description 'list jobs by state: active, complete, delayed, failed, stuck'
     .action (state, number, cmdOptions) ->
