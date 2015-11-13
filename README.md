@@ -10,7 +10,6 @@ Kue-cli is a *command line* job management client for Kue.
 
 ## Commands
 
-
 #### stats
 Display number of active, complete, delayed, failed and stuck (but active) tasks
 
@@ -59,13 +58,9 @@ Show job with a given id
 
 `./index.coffee job 3501 -i` opens job #3501 in interactive REPL
 
--
 
-### Bugs & progress
----
-
+## Bugs & progress
 https://overv.io/workspace/mirekm/adorable-salamander/
 
-### License
----
+## License
 MIT
