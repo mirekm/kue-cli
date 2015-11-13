@@ -6,6 +6,10 @@ Kue-cli is a *command line* job management client for Kue.
 
 `npm install kue-cli`
 
+If installed with npm Kue-cli registers `kue-cli` executable (alias to `./index.coffee`) via npm bin section. Depending on whether you install it locally or globally the `kue-cli` command is available in one of your `node_modules/.bin/` folders.
+
+*NOTE:* At the moment Kue-cli requires `coffee` interpreter.
+
 ---
 
 ## Commands
