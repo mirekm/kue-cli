@@ -53,6 +53,12 @@ Show job with a given id
 
 -i — open job data in REPL
 
+*Examples:*
+
+`./index.coffee job 5031` outputs job #5031
+
+`./index.coffee job 3501 -i` opens job #3501 in interactive REPL
+
 -
 
 ### Bugs & progress
