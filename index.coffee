@@ -15,9 +15,6 @@ stream = require 'stream'
 
 config = require './config'
 
-redisClient = redis.createClient config.REDIS_DB_URL
-
-
 class Renderer
 
     defaults: () ->
@@ -57,6 +54,7 @@ class KueCliRenderer extends Renderer
 class KueApi
 
     defaults:
+        redis: config.REDIS_DB_URL
         stuckDelta: 5000
         min: 0
         max: 50
@@ -66,7 +64,7 @@ class KueApi
 
     constructor: (options={}) ->
          @options = _.extend @defaults, options
-         @options.queue = kue.createQueue redis: config.REDIS_DB_URL
+         @options.queue = kue.createQueue redis: @options.redis
 
     # Counters
     # ------------------------------------------------
@@ -149,13 +147,14 @@ cli
 cli
     .command 'stats'
     .option("-t, --time [seconds]", "Time difference between last updated_at and Date.now() determining that the task is stuck", 60)
+    .option "--redis [url]", "Redis url, defaults to REDIS_DB_URL environment variable or localhost", config.REDIS_DB_URL
     .description 'show active, complete, delayed, failed and stuck-active tasks'
     .action (options) ->
         stuckDelta = options.time * 1000
         renderer = new KueCliRenderer
             stuckDelta: stuckDelta
         kueCli = new KueApi
-            client: redisClient
+            redis: options.redis
             stuckDelta: stuckDelta
         kueCli.getStats (error, stats) =>
             if error
@@ -168,13 +167,14 @@ cli
 cli
     .command 'watch'
     .option("-t, --time [seconds]", "Time difference between last updated_at and Date.now() determining that the task is stuck", 60)
+    .option "--redis [url]", "Redis url, defaults to REDIS_DB_URL environment variable or localhost", config.REDIS_DB_URL
     .description 'watch active, complete, delayed and failed Kue tasks'
     .action (options) ->
         stuckDelta = options.time * 1000
         renderer = new KueCliRenderer
             stuckDelta: stuckDelta
         kueCli = new KueApi
-            client: redisClient
+            redis: options.redis
             stuckDelta: stuckDelta
         setInterval () =>
             kueCli.getStats (error, stats) =>
@@ -187,6 +187,7 @@ cli
 cli
     .command 'list [state] [number]'
     .option("-t, --time [seconds]", "Time difference between last updated_at and Date.now() determining that the task is stuck", 60)
+    .option "--redis [url]", "Redis url, defaults to REDIS_DB_URL environment variable or localhost", config.REDIS_DB_URL
     .description 'list jobs by state: active, complete, delayed, failed, stuck'
     .action (state, number, cmdOptions) ->
         if not state
@@ -194,7 +195,7 @@ cli
         renderer = new KueCliRenderer
         stuckDelta = cmdOptions.time * 1000
         options =
-            client: redisClient
+            redis: cmdOptions.redis
             stuckDelta: stuckDelta
         if +number > 0
             options.max = number - 1
@@ -221,6 +222,7 @@ cli
 cli
     .command 'job [id]'
     .option("-i, --interactive", "Portal yourself to node REPL")
+    .option "--redis [url]", "Redis url, defaults to REDIS_DB_URL environment variable or localhost", config.REDIS_DB_URL
     .description 'show job details'
     .action (id, cmdOptions) ->
         renderer = new KueCliRenderer
@@ -229,7 +231,7 @@ cli
             process.exit 1
         else
             options =
-                client: redisClient
+                redis: cmdOptions.redis
             kueCli = new KueApi options
             kueCli.get +id, (error, job) =>
                 str = highlight JSON.stringify(job, null, 4)
@@ -246,6 +248,7 @@ cli
 cli
     .command 'drop [state]'
     .option("-t, --time [seconds]", "(Stuck jobs only) time difference between last updated_at and Date.now() determining that the task is stuck", 60)
+    .option "--redis [url]", "Redis url, defaults to REDIS_DB_URL environment variable or localhost", config.REDIS_DB_URL
     .description 'drop jobs of a given state'
     .action (state, cmdOptions) ->
         if not state
@@ -253,7 +256,7 @@ cli
             process.exit 1
         renderer = new KueCliRenderer
         options =
-            client: redisClient
+            redis: cmdOptions.redis
             stuckDelta: cmdOptions.time * 1000
         kueCli = new KueApi options
         kueCli.drop state, (error, count) ->
