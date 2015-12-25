@@ -12,6 +12,7 @@ moment = require 'moment'
 redis = require 'redis'
 repl = require 'repl'
 stream = require 'stream'
+packageJson = require './package.json'
 
 config = require './config'
 
@@ -144,7 +145,7 @@ options =
     watchInterval: 200
 
 cli
-    .version '0.0.8'
+    .version packageJson.version
 
 cli
     .command 'stats'
